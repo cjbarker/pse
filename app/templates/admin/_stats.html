@@ -1,0 +1,28 @@
+<div class="cards">
+  <div class="card"><div class="num">{{ stats.pages }}</div><div class="label">pages indexed</div></div>
+  <div class="card"><div class="num">{{ stats.links }}</div><div class="label">links</div></div>
+  <div class="card"><div class="num">{{ stats.seeds_enabled }}/{{ stats.seeds_total }}</div><div class="label">seeds enabled</div></div>
+  <div class="card"><div class="num">{{ stats.queue_pending }}</div><div class="label">queue pending</div></div>
+  <div class="card"><div class="num">{{ stats.queue_in_progress }}</div><div class="label">in progress</div></div>
+  <div class="card {{ 'warn' if stats.queue_error }}"><div class="num">{{ stats.queue_error }}</div><div class="label">queue errors</div></div>
+  <div class="card"><div class="num">{{ stats.discovered_pending }}</div><div class="label">discovered (pending)</div></div>
+  <div class="card"><div class="num">{{ stats.peers_enabled }}</div><div class="label">peers enabled</div></div>
+</div>
+
+{% if stats.last_job %}
+<p class="muted" style="margin-top:14px">
+  Last crawl job #{{ stats.last_job.id }}: <strong>{{ stats.last_job.status }}</strong>
+  — {{ stats.last_job.pages_crawled }} pages, {{ stats.last_job.errors }} errors
+  {% if stats.last_job.finished_at %}· finished {{ stats.last_job.finished_at }}{% endif %}
+</p>
+{% endif %}
+
+{% if stats.top_domains %}
+<h2>Top domains by page count</h2>
+<table>
+  <tr><th>Domain</th><th>Pages</th></tr>
+  {% for d in stats.top_domains %}
+    <tr><td>{{ d.domain }}</td><td>{{ d.pages }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}

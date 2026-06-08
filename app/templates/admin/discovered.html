@@ -1,0 +1,29 @@
+{% extends "admin/_layout.html" %}
+{% set active = 'discovered' %}
+{% block title %}Discovered domains — PSE Admin{% endblock %}
+{% block admin %}
+<h1>Discovered domains</h1>
+<p class="muted">Domains harvested from pages you clicked in search results (self-seeding).
+Approve to add them as seeds, or reject to ignore them.</p>
+
+<table>
+  <tr><th>Domain</th><th>Times seen</th><th>Discovered</th><th></th></tr>
+  {% for d in discovered %}
+  <tr>
+    <td>{{ d.domain }}</td>
+    <td>{{ d.times_seen }}</td>
+    <td class="muted">{{ d.discovered_at.strftime('%Y-%m-%d %H:%M') }}</td>
+    <td>
+      <form class="inline-form" action="/admin/discovered/{{ d.id }}/approve" method="post">
+        <button class="btn btn-sm btn-primary" type="submit">Approve → seed</button>
+      </form>
+      <form class="inline-form" action="/admin/discovered/{{ d.id }}/reject" method="post">
+        <button class="btn btn-sm btn-danger" type="submit">Reject</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="4" class="muted">Nothing pending. Click results in the search UI to discover new domains.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pse
+      POSTGRES_PASSWORD: pse
+      POSTGRES_DB: pse
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pse"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build: .
+    command: alembic upgrade head
+    environment:
+      SYNC_DATABASE_URL: postgresql+psycopg://pse:pse@db:5432/pse
+      DATABASE_URL: postgresql+asyncpg://pse:pse@db:5432/pse
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+asyncpg://pse:pse@db:5432/pse
+      SYNC_DATABASE_URL: postgresql+psycopg://pse:pse@db:5432/pse
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build: .
+    # The crawl loop drains the frontier whenever there is work, then sleeps.
+    command: >
+      sh -c "while true; do python -m app.crawler.worker; python -m app.ranking.pagerank; sleep 30; done"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://pse:pse@db:5432/pse
+      SYNC_DATABASE_URL: postgresql+psycopg://pse:pse@db:5432/pse
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:

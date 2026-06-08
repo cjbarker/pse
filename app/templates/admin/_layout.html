@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container admin">
+  <nav class="admin-nav">
+    <a href="/admin/" class="{{ 'active' if active == 'dashboard' }}">Dashboard</a>
+    <a href="/admin/seeds" class="{{ 'active' if active == 'seeds' }}">Seeds</a>
+    <a href="/admin/discovered" class="{{ 'active' if active == 'discovered' }}">Discovered</a>
+    <a href="/admin/peers" class="{{ 'active' if active == 'peers' }}">Peers</a>
+    <a href="/">Search →</a>
+  </nav>
+  {% block admin %}{% endblock %}
+</div>
+{% endblock %}
