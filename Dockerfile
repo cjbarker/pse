@@ -6,8 +6,11 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Install dependencies first for better layer caching.
-COPY pyproject.toml ./
+# Install the package first (deps + app) for layer caching. setuptools needs the
+# package sources and README at build time, so copy those before installing; the
+# rest of the project (migrations, scripts, alembic.ini) is copied afterward.
+COPY pyproject.toml README.md ./
+COPY app ./app
 RUN pip install --upgrade pip && pip install .
 
 COPY . .
