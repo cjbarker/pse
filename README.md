@@ -79,19 +79,25 @@ Useful targets: `make crawl`, `make rank`, `make seed`, `make logs`, `make down`
 
 ## Local development (no Docker)
 
+This project uses [uv](https://docs.astral.sh/uv/). `uv sync` creates a `.venv`
+and installs the locked dependencies (including the dev group); prefix commands
+with `uv run` to use it (no manual activation needed).
+
 ```bash
-python -m venv .venv && source .venv/bin/activate
-make install                  # pip install -e ".[dev]"
+uv sync                       # create .venv + install deps from uv.lock (or: make install)
 
 # Point at a Postgres you control:
 export DATABASE_URL=postgresql+asyncpg://pse:pse@localhost:5432/pse
 export SYNC_DATABASE_URL=postgresql+psycopg://pse:pse@localhost:5432/pse
-alembic upgrade head
+uv run alembic upgrade head
 
-uvicorn app.main:app --reload          # web UI + API
-python -m app.crawler.worker           # one crawl pass
-python -m app.ranking.pagerank         # recompute PageRank
+uv run uvicorn app.main:app --reload     # web UI + API
+uv run python -m app.crawler.worker      # one crawl pass
+uv run python -m app.ranking.pagerank    # recompute PageRank
 ```
+
+After editing dependencies in `pyproject.toml`, run `uv lock` (or `make lock`) to
+refresh `uv.lock`, and commit it.
 
 ## Configuration
 
@@ -118,17 +124,17 @@ Unit tests (scope matching, HTML parsing, importers, PageRank graph) need no dat
 Integration tests crawl a tiny in-process fixture site and verify indexing, search,
 PageRank ordering, self-seeding, and federation — they auto-skip if no Postgres is
 reachable. Point them at a throwaway DB with
-`TEST_DATABASE_URL=postgresql+asyncpg://pse:pse@localhost:5432/pse pytest`.
+`TEST_DATABASE_URL=postgresql+asyncpg://pse:pse@localhost:5432/pse uv run pytest`.
 
 ### Continuous integration
 
 `.github/workflows/ci.yml` runs on every push and pull request:
 
 - **lint-test** (Python 3.11 and 3.12) against a `postgres:16` service container —
-  `ruff check`, `ruff format --check`, an Alembic migration round-trip
-  (`upgrade head → downgrade base → upgrade head`), and the full `pytest` suite
-  (unit **and** Postgres-backed integration tests).
-- **docker-build** — builds the production image to validate the `Dockerfile`.
+  installs with `uv sync --frozen`, then `ruff check`, `ruff format --check`, an
+  Alembic migration round-trip (`upgrade head → downgrade base → upgrade head`), and
+  the full `pytest` suite (unit **and** Postgres-backed integration tests).
+- **docker-build** — builds the production image (uv-based) to validate the `Dockerfile`.
 
 ## License
 

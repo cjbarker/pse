@@ -9,10 +9,11 @@ help:
 	@echo "  make crawl     Run one crawl pass against the running db"
 	@echo "  make rank      Recompute PageRank against the running db"
 	@echo "  make seed      Load a few example seeds"
-	@echo "  make install   Install Python deps locally (editable, with dev extras)"
+	@echo "  make install   Create the uv-managed venv and install all deps (incl. dev)"
 	@echo "  make test      Run the test suite (needs a Postgres at TEST_DATABASE_URL)"
 	@echo "  make lint      Run ruff"
 	@echo "  make fmt       Auto-fix lint + format with ruff"
+	@echo "  make lock      Refresh uv.lock"
 
 up:
 	docker compose up -d --build
@@ -39,14 +40,17 @@ seed:
 	docker compose run --rm web python -m scripts.seed_examples
 
 install:
-	pip install -e ".[dev]"
+	uv sync
+
+lock:
+	uv lock
 
 test:
-	pytest -q
+	uv run pytest -q
 
 lint:
-	ruff check .
+	uv run ruff check .
 
 fmt:
-	ruff check --fix .
-	ruff format .
+	uv run ruff check --fix .
+	uv run ruff format .
