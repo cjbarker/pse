@@ -1,5 +1,7 @@
 # PSE — Personalized Search Engine
 
+[![CI](https://github.com/cjbarker/pse/actions/workflows/ci.yml/badge.svg)](https://github.com/cjbarker/pse/actions/workflows/ci.yml)
+
 A **personal, local-first search engine**. Seed it with the domains and URLs *you*
 trust, and it crawls + indexes only those, then ranks results with classic
 **PageRank** over the crawled link graph. It's private by construction: it indexes
@@ -117,6 +119,16 @@ Integration tests crawl a tiny in-process fixture site and verify indexing, sear
 PageRank ordering, self-seeding, and federation — they auto-skip if no Postgres is
 reachable. Point them at a throwaway DB with
 `TEST_DATABASE_URL=postgresql+asyncpg://pse:pse@localhost:5432/pse pytest`.
+
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and pull request:
+
+- **lint-test** (Python 3.11 and 3.12) against a `postgres:16` service container —
+  `ruff check`, `ruff format --check`, an Alembic migration round-trip
+  (`upgrade head → downgrade base → upgrade head`), and the full `pytest` suite
+  (unit **and** Postgres-backed integration tests).
+- **docker-build** — builds the production image to validate the `Dockerfile`.
 
 ## License
 

@@ -24,9 +24,7 @@ scope_mode = postgresql.ENUM("domain", "prefix", "exact", name="scope_mode", cre
 crawl_status = postgresql.ENUM(
     "pending", "in_progress", "done", "error", name="crawl_status", create_type=False
 )
-job_status = postgresql.ENUM(
-    "running", "finished", "failed", name="job_status", create_type=False
-)
+job_status = postgresql.ENUM("running", "finished", "failed", name="job_status", create_type=False)
 discovery_status = postgresql.ENUM(
     "pending", "approved", "rejected", name="discovery_status", create_type=False
 )

@@ -65,11 +65,7 @@ async def compute_pagerank(session: AsyncSession) -> dict:
     # bulk-by-primary-key operation.
     payload = [{"pid": pid, "score": float(scores.get(pid, 0.0))} for pid in page_ids]
     table = Page.__table__
-    stmt = (
-        update(table)
-        .where(table.c.id == bindparam("pid"))
-        .values(pagerank=bindparam("score"))
-    )
+    stmt = update(table).where(table.c.id == bindparam("pid")).values(pagerank=bindparam("score"))
     await session.execute(stmt, payload)
     await session.commit()
 
