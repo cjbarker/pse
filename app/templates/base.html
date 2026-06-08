@@ -5,9 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}PSE{% endblock %}</title>
   <link rel="stylesheet" href="/static/style.css">
+  <script>
+    // Apply the saved (or system) theme before first paint to avoid a flash.
+    (function () {
+      try {
+        var stored = localStorage.getItem('pse-theme');
+        var dark = stored ? stored === 'dark'
+          : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      } catch (e) {}
+    })();
+  </script>
   <script src="/static/htmx.min.js" defer></script>
 </head>
 <body>
+  <button type="button" id="theme-toggle" class="theme-toggle"
+          aria-label="Toggle light/dark mode" title="Toggle light/dark mode"></button>
   {% block body %}{% endblock %}
+  <script src="/static/theme.js" defer></script>
 </body>
 </html>
