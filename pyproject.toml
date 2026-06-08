@@ -25,7 +25,9 @@ dependencies = [
     "psycopg[binary]>=3.1",
 ]
 
-[project.optional-dependencies]
+# Dev tooling lives in a PEP 735 dependency group, which `uv sync` installs by
+# default (and `uv sync --no-dev` / the Docker image omit).
+[dependency-groups]
 dev = [
     "pytest>=8.2",
     "pytest-asyncio>=0.23",
