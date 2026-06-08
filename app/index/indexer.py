@@ -81,3 +81,22 @@ async def replace_links(session: AsyncSession, src_page_id: int, dst_urls: list[
         ),
         [{"src": src_page_id, "dst": dst} for dst in dst_urls],
     )
+
+
+async def reindex_pages(session: AsyncSession) -> int:
+    """Rebuild every page's ``search_vector`` from stored title/content.
+
+    Returns the number of pages reindexed. Used by the admin "Reindex" action and
+    the MCP ``reindex`` tool.
+    """
+    result = await session.execute(
+        text(
+            """
+            UPDATE pages SET search_vector =
+                setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
+                setweight(to_tsvector('english', coalesce(content_text, '')), 'B')
+            """
+        )
+    )
+    await session.commit()
+    return result.rowcount or 0

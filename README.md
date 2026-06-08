@@ -114,6 +114,45 @@ and federation (`FEDERATION_TIMEOUT`).
 - `GET /api/stats` → crawl/index counters.
 - `GET /healthz` → liveness.
 
+## MCP server
+
+PSE ships an [MCP](https://modelcontextprotocol.io) server (stdio) so AI assistants can
+search the personal index and drive the crawler. Run it with the `pse-mcp` console
+script; it uses the same environment as the rest of PSE (notably `DATABASE_URL`).
+
+```bash
+uv run pse-mcp        # stdio MCP server
+```
+
+**Tools**
+
+- *Retrieval (always available):* `search`, `get_page` (full stored document text),
+  `stats`.
+- *Administration (only when `PSE_MCP_ADMIN=true`, the default):* `list_seeds` /
+  `add_seed` / `set_seed_enabled` / `remove_seed` / `import_seeds`; `start_crawl` /
+  `crawl_status` / `list_crawl_jobs`; `recompute_pagerank` / `reindex`;
+  `list_discovered_domains` / `approve_discovered_domain` / `reject_discovered_domain`;
+  `list_peers` / `add_peer` / `set_peer_enabled` / `remove_peer`.
+
+Set `PSE_MCP_ADMIN=false` for a read-only server (search/get_page/stats only).
+
+**Client config** (e.g. Claude Desktop/Code) — point it at the project and run via uv:
+
+```json
+{
+  "mcpServers": {
+    "pse": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/pse", "run", "pse-mcp"],
+      "env": {
+        "DATABASE_URL": "postgresql+asyncpg://pse:pse@localhost:5432/pse",
+        "PSE_MCP_ADMIN": "true"
+      }
+    }
+  }
+}
+```
+
 ## Testing
 
 ```bash

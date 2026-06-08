@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -36,6 +37,10 @@ class Settings(BaseSettings):
 
     # Search
     search_page_size: int = 10
+
+    # MCP server: when false, only read/retrieval tools are registered (no mutating
+    # or crawl-triggering tools).
+    mcp_enable_admin: bool = Field(default=True, validation_alias="PSE_MCP_ADMIN")
 
 
 @lru_cache

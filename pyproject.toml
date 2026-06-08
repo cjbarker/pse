@@ -23,7 +23,11 @@ dependencies = [
     "feedparser>=6.0",
     "tldextract>=5.1",
     "psycopg[binary]>=3.1",
+    "mcp>=1.2",
 ]
+
+[project.scripts]
+pse-mcp = "app.mcp_server:main"
 
 # Dev tooling lives in a PEP 735 dependency group, which `uv sync` installs by
 # default (and `uv sync --no-dev` / the Docker image omit).
