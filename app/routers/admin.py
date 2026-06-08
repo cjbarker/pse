@@ -8,12 +8,13 @@ import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, UploadFile
 from fastapi.responses import RedirectResponse
-from sqlalchemy import delete, select, text, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.crawler.worker import run_crawl
 from app.db import get_session
+from app.index.indexer import reindex_pages
 from app.models import (
     DiscoveredDomain,
     DiscoveryStatus,
@@ -214,16 +215,7 @@ async def trigger_pagerank(background: BackgroundTasks):
 @router.post("/actions/reindex")
 async def trigger_reindex(session: AsyncSession = Depends(get_session)):
     """Rebuild every page's search_vector from stored title/content."""
-    await session.execute(
-        text(
-            """
-            UPDATE pages SET search_vector =
-                setweight(to_tsvector('english', coalesce(title, '')), 'A') ||
-                setweight(to_tsvector('english', coalesce(content_text, '')), 'B')
-            """
-        )
-    )
-    await session.commit()
+    await reindex_pages(session)
     return RedirectResponse(url="/admin/", status_code=303)
 
 
