@@ -1,0 +1,23 @@
+{% extends "admin/_layout.html" %}
+{% set active = 'dashboard' %}
+{% block title %}Dashboard — PSE Admin{% endblock %}
+{% block admin %}
+<h1>Crawl &amp; index dashboard</h1>
+
+<div class="actions-row">
+  <form class="inline-form" action="/admin/actions/crawl" method="post">
+    <button class="btn btn-primary" type="submit">▶ Start crawl</button>
+  </form>
+  <form class="inline-form" action="/admin/actions/pagerank" method="post">
+    <button class="btn" type="submit">↻ Recompute PageRank</button>
+  </form>
+  <form class="inline-form" action="/admin/actions/reindex" method="post">
+    <button class="btn" type="submit">⟳ Reindex</button>
+  </form>
+  <span class="muted" style="align-self:center">Crawl &amp; PageRank run in the background; counters refresh below.</span>
+</div>
+
+<div hx-get="/admin/stats-partial" hx-trigger="load, every 3s" hx-swap="innerHTML">
+  {% include "admin/_stats.html" %}
+</div>
+{% endblock %}

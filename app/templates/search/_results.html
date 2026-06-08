@@ -1,0 +1,33 @@
+{% if results.total == 0 and not hits %}
+  <div class="empty">No results in your index for <strong>{{ q }}</strong>.
+    {% if not federated %}<br>Try enabling <em>federate</em>, or add more seeds in the
+    <a href="/admin/seeds">admin UI</a> and crawl.{% endif %}
+  </div>
+{% else %}
+  <div class="summary">About {{ results.total }} local result{{ '' if results.total == 1 else 's' }}{% if federated %} (plus federated){% endif %}.</div>
+  {% for hit in hits %}
+    <div class="result">
+      <div class="url">{{ hit.url }}</div>
+      {% if hit.source == 'local' %}
+        <a class="title" href="/go?page_id={{ hit.page_id }}">{{ hit.title or hit.url }}</a>
+      {% else %}
+        <a class="title" href="{{ hit.url }}" rel="noopener">{{ hit.title or hit.url }}</a>
+        <span class="badge">via {{ hit.source }}</span>
+      {% endif %}
+      <div class="snippet">{{ hit.snippet | safe }}</div>
+      <div class="meta">score {{ '%.4f' | format(hit.score) }} · pagerank {{ '%.4f' | format(hit.pagerank) }}</div>
+    </div>
+  {% endfor %}
+
+  {% if total_pages > 1 and not federated %}
+    <div class="pager">
+      {% if results.page > 1 %}
+        <a class="btn btn-sm" href="/?q={{ q | urlencode }}&page={{ results.page - 1 }}">‹ Prev</a>
+      {% endif %}
+      <span class="muted">Page {{ results.page }} of {{ total_pages }}</span>
+      {% if results.page < total_pages %}
+        <a class="btn btn-sm" href="/?q={{ q | urlencode }}&page={{ results.page + 1 }}">Next ›</a>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endif %}

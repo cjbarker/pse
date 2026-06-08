@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{% if q %}{{ q }} — PSE{% else %}PSE{% endif %}{% endblock %}
+{% block body %}
+{% if not q %}
+  <div class="container search-home">
+    <div class="brand"><span class="a">P</span>SE</div>
+    <div class="tagline">Your personal search engine — only the web you trust.</div>
+    <form class="search-bar" action="/" method="get">
+      <input class="search-input" type="text" name="q" autofocus
+             placeholder="Search your index…" value="{{ q }}">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+    <p class="tagline" style="margin-top:24px">
+      <a href="/admin/">Admin dashboard →</a>
+    </p>
+  </div>
+{% else %}
+  <div class="container">
+    <div class="topbar">
+      <a href="/" class="brand-sm"><span style="color:var(--accent)">P</span>SE</a>
+      <form class="search-bar" action="/" method="get" style="max-width:580px">
+        <input class="search-input" type="text" name="q" value="{{ q }}">
+        <input type="hidden" name="federated" value="{{ 'true' if federated else 'false' }}">
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+      <label class="fed-toggle">
+        <input type="checkbox" onchange="toggleFed(this)" {% if federated %}checked{% endif %}>
+        federate
+      </label>
+    </div>
+    <div id="results" class="results">
+      {% include "search/_results.html" %}
+    </div>
+  </div>
+  <script>
+    function toggleFed(cb) {
+      const u = new URL(window.location);
+      u.searchParams.set('federated', cb.checked ? 'true' : 'false');
+      u.searchParams.set('page', '1');
+      window.location = u.toString();
+    }
+  </script>
+{% endif %}
+{% endblock %}

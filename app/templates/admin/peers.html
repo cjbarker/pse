@@ -1,0 +1,45 @@
+{% extends "admin/_layout.html" %}
+{% set active = 'peers' %}
+{% block title %}Peers — PSE Admin{% endblock %}
+{% block admin %}
+<h1>Federation peers</h1>
+<p class="muted">Trusted remote PSE nodes. When you search with <em>federate</em> on, their
+results are appended after your local hits (capped at the federation timeout).</p>
+
+<h2>Add a peer</h2>
+<form class="form-row" action="/admin/peers" method="post">
+  <div class="field">
+    <label>Name</label>
+    <input type="text" name="name" placeholder="alice-pse" required>
+  </div>
+  <div class="field">
+    <label>Base URL</label>
+    <input type="text" name="base_url" placeholder="https://pse.alice.example" required style="min-width:280px">
+  </div>
+  <button class="btn btn-primary" type="submit">Add peer</button>
+</form>
+
+<h2>Current peers ({{ peers | length }})</h2>
+<table>
+  <tr><th>Name</th><th>Base URL</th><th>Status</th><th>Last OK</th><th></th></tr>
+  {% for p in peers %}
+  <tr>
+    <td>{{ p.name }}</td>
+    <td>{{ p.base_url }}</td>
+    <td><span class="pill {{ 'on' if p.enabled else 'off' }}">{{ 'enabled' if p.enabled else 'disabled' }}</span></td>
+    <td class="muted">{{ p.last_ok_at.strftime('%Y-%m-%d %H:%M') if p.last_ok_at else '—' }}</td>
+    <td>
+      <form class="inline-form" action="/admin/peers/{{ p.id }}/toggle" method="post">
+        <button class="btn btn-sm" type="submit">{{ 'Disable' if p.enabled else 'Enable' }}</button>
+      </form>
+      <form class="inline-form" action="/admin/peers/{{ p.id }}/delete" method="post"
+            onsubmit="return confirm('Delete this peer?')">
+        <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="muted">No peers yet. Add one to broaden searches via federation.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,13 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.env
+tests
+*.md
+# Keep README.md — pyproject.toml references it as the package readme, so the
+# image build needs it in the context.
+!README.md

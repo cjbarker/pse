@@ -1,0 +1,66 @@
+{% extends "admin/_layout.html" %}
+{% set active = 'seeds' %}
+{% block title %}Seeds — PSE Admin{% endblock %}
+{% block admin %}
+<h1>Seeds</h1>
+<p class="muted">Curate the trusted domains and URLs that define your index. The more
+specialized the domain, the better the results.</p>
+
+<h2>Add a seed</h2>
+<form class="form-row" action="/admin/seeds" method="post">
+  <div class="field">
+    <label>Domain or URL</label>
+    <input type="text" name="value" placeholder="example.com or https://example.com/docs" required>
+  </div>
+  <div class="field">
+    <label>Scope</label>
+    <select name="scope_mode">
+      {% for m in scope_modes %}<option value="{{ m.value }}">{{ m.value }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label>Max depth</label>
+    <input type="number" name="max_depth" value="3" min="0" max="10" style="width:80px">
+  </div>
+  <button class="btn btn-primary" type="submit">Add seed</button>
+</form>
+
+<h2>Import seeds</h2>
+<form class="form-row" action="/admin/seeds/import" method="post" enctype="multipart/form-data">
+  <div class="field">
+    <label>Paste domains / URLs (one per line)</label>
+    <textarea name="paste" placeholder="example.com&#10;https://another.org"></textarea>
+  </div>
+  <div class="field">
+    <label>…or upload OPML / RSS / bookmarks.html</label>
+    <input type="file" name="upload" accept=".opml,.xml,.rss,.atom,.html,.htm">
+  </div>
+  <button class="btn" type="submit">Import</button>
+</form>
+
+<h2>Current seeds ({{ seeds | length }})</h2>
+<table>
+  <tr><th>Value</th><th>Scope</th><th>Depth</th><th>Status</th><th></th></tr>
+  {% for s in seeds %}
+  <tr>
+    <td>{{ s.value }}</td>
+    <td>{{ s.scope_mode.value }}</td>
+    <td>{{ s.max_depth }}</td>
+    <td>
+      <span class="pill {{ 'on' if s.enabled else 'off' }}">{{ 'enabled' if s.enabled else 'disabled' }}</span>
+    </td>
+    <td>
+      <form class="inline-form" action="/admin/seeds/{{ s.id }}/toggle" method="post">
+        <button class="btn btn-sm" type="submit">{{ 'Disable' if s.enabled else 'Enable' }}</button>
+      </form>
+      <form class="inline-form" action="/admin/seeds/{{ s.id }}/delete" method="post"
+            onsubmit="return confirm('Delete this seed?')">
+        <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="muted">No seeds yet — add one above to get started.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
