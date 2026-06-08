@@ -8,3 +8,6 @@ __pycache__
 .env
 tests
 *.md
+# Keep README.md — pyproject.toml references it as the package readme, so the
+# image build needs it in the context.
+!README.md
